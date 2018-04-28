@@ -1,7 +1,7 @@
 const School = require('./school.model')
 
 // Defines the attributes returned when searching
-const searchResultAttrs = ['_id', 'beds_code']
+const searchResultAttrs = ['_id', 'beds_code', 'name', 'city_location']
 
 // Defines default pagination options
 function handlePagination (req) {
