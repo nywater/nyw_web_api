@@ -1,5 +1,4 @@
 # nyw_web_api
-<<<<<<< HEAD
 NYwater.info Express.Js API Server
 
 This repository maintains all the source code for the server-side application running at [NYwater.info](http://nywater.info).
@@ -38,6 +37,3 @@ Documentation is auto-generated from [APIDoc.JS](http://apidocjs.com). Build the
 - [dotenv](https://www.npmjs.com/package/dotenv)
 
 - [APIDoc.JS](http://apidocjs.com)
-=======
-NyWater.info Express.Js API Server
->>>>>>> ccd061d3d54073016322802c513641ec9724a85f

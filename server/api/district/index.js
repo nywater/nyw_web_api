@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const controller = require('./city.controller');
+const controller = require('./district.controller');
 
 // // // //
 
-// GET /cities
+// GET /district
 router.get('/', controller.list);
 
 // // // //
