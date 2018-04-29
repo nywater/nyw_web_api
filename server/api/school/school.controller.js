@@ -1,7 +1,7 @@
 const School = require('./school.model')
 
 // Defines the attributes returned when searching
-const searchResultAttrs = ['_id', 'beds_code']
+const searchResultAttrs = ['_id', 'beds_code', 'name', 'district']
 
 // Defines default pagination options
 function handlePagination (req) {
@@ -30,7 +30,7 @@ module.exports.list = (req, res, next) => {
 
     // Queries and Paginates
     return School.find(query, searchResultAttrs)
-      .sort({ name: 1 })
+      .sort({ district: 1 })
       .limit(per_page)
       .skip(skip)
       .lean()
@@ -54,7 +54,7 @@ module.exports.list = (req, res, next) => {
 * @api {get} /api/schools/search Search
 * @apiName search
 * @apiGroup School
-* @apiDescription Gets a paginated list of Schools of a particular city and query
+* @apiDescription Gets a paginated list of Schools of a particular district and query
 * @apiPermission public
 * @apiSuccess {Collection} root Collection of School records matching the query
 * @apiError (500) UnknownException Could not retrieve School collection
@@ -72,10 +72,10 @@ module.exports.search = (req, res, next) => {
     ]
 
     // Builds query
-    if (req.query.city) {
+    if (req.query.district) {
         query['$and'] = [
             { '$or': matchQuery },
-            { 'address.city': req.query.city }
+            { 'district': req.query.district }
         ]
     } else {
         query['$and'] = [
@@ -85,7 +85,7 @@ module.exports.search = (req, res, next) => {
 
     // Queries and Paginates
     return School.find(query, searchResultAttrs)
-      .sort({ name: 1 })
+      .sort({ district: 1 })
       .limit(per_page)
       .skip(skip)
       .lean()
