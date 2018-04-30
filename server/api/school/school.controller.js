@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const School = require('./school.model')
 
 // Defines the attributes returned when searching
@@ -121,5 +122,96 @@ module.exports.show = (req, res, next) => {
         .status(200)
         .send(response)
         .end();
+    }).catch(next);
+};
+
+/**
+* @api {post} /api/schools/generateStats Generate Stats
+* @apiName generateStats
+* @apiGroup School
+* @apiDescription Generates statistics for all schools
+* @apiPermission public
+* @apiSuccess {Model} root Successfully generated statistics
+* @apiError (500) UnknownException Could not generate statistics
+*/
+// TODO - This controller function is HOT GARBAGE
+module.exports.generateStats = (req, res, next) => {
+    return School.find({})
+    .lean()
+    .exec()
+    .then((schools) => {
+
+        // Iterates over each school, generate school.stats
+        schools = _.map(schools, (school) => {
+
+            // Sanitizes values
+            school['outlets_gt_15ppb'] = Number(school['outlets_gt_15ppb']) || 0
+            school['outlets_leq_15ppb'] = Number(school['outlets_leq_15ppb']) || 0
+
+            // Isolates variables
+            let gt15 = school['outlets_gt_15ppb']
+            let leq15 = school['outlets_leq_15ppb']
+
+            // Calculates statistics
+            let pct_compliant = leq15 / (leq15 + gt15)
+            let pct_non_compliant = gt15 / (leq15 + gt15)
+
+            // Adds school.stats
+            school.stats = {
+                pct_compliant,
+                pct_non_compliant
+            }
+
+            return school
+        })
+
+        // // // //
+        // Calculates percentile rank
+
+        function countOfValueInArray(val) {
+            let subset = _.filter(schools, (s) => {
+                return s.stats.pct_compliant === val
+            })
+
+            return subset.length
+        }
+
+        function lessThanValuesInArray(val) {
+            let subset = _.filter(schools, (s) => {
+                return s.stats.pct_compliant < val
+            })
+
+            return subset.length
+        }
+
+        // Iterates over each school again and calculates the percentile rank
+        updatedSchools = _.map(schools, (s) => {
+
+            let N = schools.length
+            let L = lessThanValuesInArray(s.stats.pct_compliant)
+            let S = countOfValueInArray(s.stats.pct_compliant)
+
+            let rank = (L + (S/2))/N * 100
+            s.stats.rank = rank
+            return s
+        })
+
+        // Saves each school with updated stats
+        _.each(updatedSchools, (s) => {
+            School.findById(s._id).then((doc) => {
+                doc.outlets_gt_15ppb = s.outlets_gt_15ppb
+                doc.outlets_leq_15ppb = s.outlets_leq_15ppb
+                doc.stats = s.stats
+                doc.save()
+            })
+        })
+
+        // // // //
+
+        return res
+        .status(200)
+        .send(updatedSchools)
+        .end();
+
     }).catch(next);
 };

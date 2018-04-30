@@ -4,9 +4,8 @@ const Schema = mongoose.Schema
 // // // //
 
 const School = new Schema({
-    name: {
-        facility: String
-    }
+    name: String,
+    stats: Schema.Types.Mixed
 },
     // Collection options
     {
