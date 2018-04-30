@@ -12,6 +12,9 @@ router.get('/search', controller.search);
 // GET /schools/:id
 router.get('/:id', controller.show);
 
+// POST /schools/generate_stats
+router.post('/generate_stats', controller.generateStats);
+
 // // // //
 
 module.exports = router;
